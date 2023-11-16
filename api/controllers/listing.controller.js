@@ -13,17 +13,43 @@ export const createListing = async (req, res, next) => {
 export const deleteListing = async (req, res, next) => {
   const listing = await Listing.findById(req.params.id);
   if (!listing) {
-    return next(errorHandler(404, 'Listing not found!'));
-    }
+    return next(errorHandler(404, "Listing not found!"));
+  }
 
-  if(req.user.id !== listing.userRef) {
-    return next(errorHandler(401, 'You are not authorized to perform this action'));
+  if (req.user.id !== listing.userRef) {
+    return next(
+      errorHandler(401, "You are not authorized to perform this action")
+    );
   }
 
   try {
     await Listing.findByIdAndDelete(req.params.id);
-    res.status(200).json('Listing has been deleted!');
+    res.status(200).json("Listing has been deleted!");
   } catch (error) {
     next(error);
   }
-}
+};
+
+export const updateListing = async (req, res, next) => {
+  const listing = await Listing.findById(req.params.id);
+  if (!listing) {
+    return next(errorHandler(404, "Listing not found!"));
+  }
+
+  if (req.user.id !== listing.userRef) {
+    return next(
+      errorHandler(401, "You are not authorized to perform this action")
+    );
+  }
+
+  try {
+    const updatedListing = await Listing.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true } // returns the modified document rather than the original one
+    );
+    res.status(200).json(updatedListing);
+  } catch (error) {
+    next(error);
+  }
+};
